@@ -10,7 +10,7 @@ with open("measure.log", "r") as f:
 
 
 NUM_THREADS = 16
-pattern = r"\d\.\d\d"
+pattern = r"\d+\.\d\d"
 
 
 view1 = []
@@ -50,5 +50,5 @@ plt.title("Mandelbrot speedup")
 plt.legend()
 
 # function to show the plot
-plt.savefig("measure.png")
+plt.savefig("measure_after.png")
 plt.show()

@@ -32,36 +32,19 @@ void workerThreadStart(WorkerArgs *const args) {
   // program that uses two threads, thread 0 could compute the top
   // half of the image and thread 1 could compute the bottom half.
 
-  double minThread = 1e30;
-  double startTime = CycleTimer::currentSeconds();
-
-  int nRegions = 8;
-
-  int kHeight = args->height / nRegions;
-  int numRows = kHeight / args->numThreads;
-  int filterId = args->numThreads - kHeight % args->numThreads;
-  int startRow = args->threadId * numRows;
-  if (args->threadId >= filterId) {
-    startRow = filterId * numRows;
-    numRows += 1;
-    startRow += (args->threadId - filterId) * numRows;
-  }
-
-  int start = 0;
-
-  // divide the matrix into k regions, with each k thread work partially on each
-  // region
-  for (int i = 0; i < nRegions; i++) {
-    start = startRow + i * kHeight;
+  // double minThread = 1e30;
+  // double startTime = CycleTimer::currentSeconds();
+  for (unsigned int i = args->threadId; i < args->height;
+       i += args->numThreads) {
     mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width,
-                     args->height, start, numRows, args->maxIterations,
-                     args->output);
+                     args->height, i, 1, args->maxIterations, args->output);
   }
 
-  double endTime = CycleTimer::currentSeconds();
-  minThread = std::min(minThread, endTime - startTime);
-  printf("\t[mandelbrot thread measure - %d - nrows: %d]:\t\t[%.3f] ms\n",
-         args->threadId, numRows, minThread * 1000);
+  // double endTime = CycleTimer::currentSeconds();
+  // minThread = std::min(minThread, endTime - startTime);
+  // printf("\t[mandelbrot thread measure - %d ]:\t\t[%.3f] ms\n",
+  // args->threadId,
+  //        minThread * 1000);
 }
 
 //

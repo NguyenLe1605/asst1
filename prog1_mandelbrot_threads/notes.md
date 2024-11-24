@@ -1,31 +1,12 @@
-- Hypothesize: the perfomance of the program will increase as a linear function of thread.
-    - For view 2, the performance is indeed a linear function of thread, however it's not close 16x as I expected.
-    - For view 1, the performance is still somewhat linear, but the graph plummets at 3 threads, the increase again. The graph is not smooth.
+# Program 1:
+- The code was in the `mandelbrotThread.cpp`, where it's simply divides the image into `number_threads` region from top to bottom and use each thread to execute on it.
+- The speed up graph for the whole computation is shown here ![image](measure.png). The speedup was linear with the number of threads use. However, it exihibits a strange behavior
+of the number of threads and the speed up are non 1-to-1 to each other. The linear is because of the work for each thread to handle is smaller with each thread added, hence making the relationship between the speedup and the number of threads linear. Taking credit from PKUFlyingPig's idea, the reason why the speedup is not close to 1-to-1 with the number of threads 
+is because of each thread is not handling the same number of works. Looking at the picture, on view 1, one could notice the workload in the middle is higher than at the rear, for view 2, the workload is higher at the rear, lower in the middle.
+- Measuring the amount of time to run 3 threads, the result is as below. As we can see here, the middle thread is computing the most out of the threads. Confirming not all threads
+are working with the same workload.
 
-- Observation:
-    - View 2: smoothly increase as a linear function of thread.
-    - View 2:
-        plummet at thread 3.
-        Increase from thread 3
-            - t4 is faster than t3
-            - The graph show the increase from thread 4 to thread 12 is not smooth, but gradually turns to smooth
-            - Then from 12 to 15: the line is straight
-            - At final 16 threads, it increase upward.
-    - Assumption:
-        - Work on the main thread then join, as the running of task on the main thread, is after on the other thread then it tries to join. If the main thread starts later
-        than any other spawned thread, making the time to join on the finished work is much later then it would be parallel.
-        In the 3-thread case, it could be that, the latency to wait for main thread is too high, causing the whole system to be slow down.
-        For the 4-thread case, the unit of of work is smaller, making the processing faster, hence the latency for the final join is reduced.
-    - Why the thread is linear: more thread, the unit of work for each thread is smaller, hence the time for processing one unit of work should be faster. The unit of work
-    - After review from PKU ideas: the problem couble the distribution of work, as we can see on the image. For image 1, most of the computation is in the middle area, while
-    the area to the top and bottom rear required less heavy computation. While at the image 2, the computation on the image 2 is more heavy at the front rows, but less at the bottom rows.
-
-    This can be seen at the measurment of running time for each work.
-
-    for example at 3 threads, both view points.
-
-    view 1
-
+    - view 1:
     ```bash
     ❯ ./mandelbrot -t 3
     [mandelbrot serial]:            [379.663] ms
@@ -50,7 +31,7 @@
                                     (1.60x speedup from 3 threads)
     ```
 
-    view 2
+    - view 2:
 
     ```bash
     ❯ ./mandelbrot -t 3 --view 2
@@ -75,6 +56,6 @@
     Wrote image file mandelbrot-thread.ppm
                                     (2.18x speedup from 3 threads)
     ```
-
-    The result of this measurement somewhat confirm at view1, the computation is heavier in the middle, while the computation is heavier at the top view 2.
+- The mapping of works is simply change to, the ith thread will work on the `row_index % i` row. The speedup for both views is approximate to 7.20x, meeting the requirements.
+- Running on the 16 threads, the speedup is greatly better than 8 threads, to be specific, it is 13x speedup. The spec of running machine is 8 cores, each core with 2 threads. Hence, with more virtual threads, the speedup of system will increase with more parallel works during another thread on another core busy waiting for an IO instructions. However on 32 threads, the performance did not increase, but also reduced to 12x. This is due to the fact that there can only be a maximum number of 16 threads of execution at a time for the CPU, meaning there can only be a total maximum of 16 parallel works on the CPU. Hence the performance is capped at 16 threads.
 
