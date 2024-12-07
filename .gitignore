@@ -3,3 +3,4 @@ objs
 compile_commands.json
 *.ppm
 *.log
+sqrt
