@@ -4,3 +4,5 @@ compile_commands.json
 *.ppm
 *.log
 sqrt
+kmeans
+*.dat
