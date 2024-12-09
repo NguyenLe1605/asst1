@@ -16,7 +16,5 @@ Why might the number I observe be less than this ideal?
         1. It's the maximum number that matches the performance + correctness. For performance, with the number of threads are 16, the runtime of the ISPC schedule 32 threads well enough to meet the speedup.
         2. With the workload distrubtion of the image is not fair, a number that is more fine-grained to divide up the tasks into smaller region where, the workload are close to each other can help the vectorized instructions acts on closer entry => workload is distributed more fairly.
 
-
-
-
+3. For the ISPC task abstraction, this abstraction involves an runtime with a thread pool of worker threads. To launch a task is to put a task into some shared space and the threads inside the runtime will try to claim the task and work on it. Different from a ISPC task, a thread will not try to claim any work but do the assigned works for the thread until the end of its lifetime.
 
